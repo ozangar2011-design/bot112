@@ -7,7 +7,7 @@ import json
 import os
 from datetime import datetime
 
-TOKEN = "8571511950:AAGkZSqxiXAPGKm-l4sHUhlVs_NJeMu2I8I"
+TOKEN = "ставте токен от телеграма сюда."
 
 bot = telebot.TeleBot(TOKEN)
 
