@@ -7,7 +7,7 @@ import json
 import os
 from datetime import datetime
 
-TOKEN = "T/,o/,k/,e/,n/."
+TOKEN = "8571511950:AAGkZSqxiXAPGKm-l4sHUhlVs_NJeMu2I8I"
 
 bot = telebot.TeleBot(TOKEN)
 
