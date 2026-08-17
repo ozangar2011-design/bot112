@@ -7,11 +7,12 @@ import json
 import os
 from datetime import datetime
 
-TOKEN = "ставте токен от телеграма сюда."
+TOKEN = "T/,o/,k/,e/,n/."
 
 bot = telebot.TeleBot(TOKEN)
 
 RESULTS_FILE = "../results.json"
+password = "qwertyyy134553"
 
 questions = [
     {
@@ -247,29 +248,52 @@ def start_test_button(message):
 
 @bot.message_handler(func=lambda message: message.text == "Результаты")
 def show_results(message):
+    bot.send_message(
+        message.chat.id,
+        "Раздел только для преподавателя.\nВведите пароль:"
+    )
+
+    bot.register_next_step_handler(message, check_teacher_password)
+
+
+def check_teacher_password(message):
+    if message.text != password:
+        bot.send_message(
+            message.chat.id,
+            "Неверный пароль."
+        )
+        return
+
     results = load_results()
 
     if not results:
-        bot.send_message(message.chat.id, "Пока сохранённых результатов нет.")
+        bot.send_message(
+            message.chat.id,
+            "Пока сохранённых результатов нет."
+        )
         return
 
     text_parts = ["Сохранённые результаты:\n"]
 
     for number, result in enumerate(results, start=1):
         text_parts.append(
-            f"{number}. {result['name']}\n"
-            f"ID: {result['user_id']}\n"
-            f"Дата: {result['date']}\n"
-            f"Результат: {result['score']} из {result['total']}\n"
+            f"{number}. {result.get('name', 'Не указано')}\n"
+            f"ID: {result.get('user_id', 'Не указано')}\n"
+            f"Дата: {result.get('date', 'Не указана')}\n"
+            f"Результат: {result.get('score', 0)} из {result.get('total', len(questions))}\n"
         )
 
         if result.get("answers"):
             text_parts.append("Ответы:")
+
             for answer in result["answers"]:
-                mark = "✓" if answer["correct"] else "✗"
+                mark = "Правильно" if answer.get("correct") else "Неправильно"
+
                 text_parts.append(
-                    f"{mark} {answer['number']}. {answer['selected']} "
-                    f"(правильный: {answer['correct_answer']})"
+                    f"{answer.get('number', '?')}. "
+                    f"{answer.get('selected', 'Не указано')} — {mark} "
+                    f"(правильный ответ: "
+                    f"{answer.get('correct_answer', 'Не указан')})"
                 )
 
         text_parts.append("")
@@ -277,8 +301,10 @@ def show_results(message):
     full_text = "\n".join(text_parts)
 
     for i in range(0, len(full_text), 4000):
-        bot.send_message(message.chat.id, full_text[i:i + 4000])
-
+        bot.send_message(
+            message.chat.id,
+            full_text[i:i + 4000]
+        )
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("answer:"))
 def check_answer(call):
@@ -349,5 +375,4 @@ def check_answer(call):
         del users[chat_id]
 
 
-print("Бот запущен...")
 bot.infinity_polling()
